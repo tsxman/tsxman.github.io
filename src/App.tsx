@@ -134,12 +134,6 @@ export default function App() {
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const [isFinished, setIsFinished] = useState<boolean>(false);
 
-  // --- СОСТОЯНИЯ ДЛЯ АНИМАЦИИ КАРТИНОК ---
-  const [slideDirection, setSlideDirection] = useState<"left" | "right" | "">(
-    "",
-  );
-  const [isAnimating, setIsAnimating] = useState<boolean>(false);
-
   // --- ОБРАБОТКА СВАЙПОВ ---
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [touchEnd, setTouchEnd] = useState<number | null>(null);
@@ -204,31 +198,17 @@ export default function App() {
     }
   }, [isFinished, score, totalSteps]);
 
-  // --- ЛОГИКА НАВИГАЦИИ ПО ВАРИАНТАМ КАРТИНОК ---
+  // --- МГНОВЕННАЯ НАВИГАЦИЯ ПО КАРТИНКАМ ---
   const handlePrev = () => {
-    if (isAnimating) return;
-    setSlideDirection("right");
-    setIsAnimating(true);
-    setTimeout(() => {
-      setCurrentOptionIndex((prev) =>
-        prev === 0 ? currentStep.options.length - 1 : prev - 1,
-      );
-      setSlideDirection("");
-      setIsAnimating(false);
-    }, 200);
+    setCurrentOptionIndex((prev) =>
+      prev === 0 ? currentStep.options.length - 1 : prev - 1,
+    );
   };
 
   const handleNext = () => {
-    if (isAnimating) return;
-    setSlideDirection("left");
-    setIsAnimating(true);
-    setTimeout(() => {
-      setCurrentOptionIndex((prev) =>
-        prev === currentStep.options.length - 1 ? 0 : prev + 1,
-      );
-      setSlideDirection("");
-      setIsAnimating(false);
-    }, 200);
+    setCurrentOptionIndex((prev) =>
+      prev === currentStep.options.length - 1 ? 0 : prev + 1,
+    );
   };
 
   // --- ОБРАБОТКА СВАЙПОВ ---
@@ -267,7 +247,7 @@ export default function App() {
 
     if (currentStepIndex < totalSteps - 1) {
       setCurrentStepIndex((prev) => prev + 1);
-      setCurrentOptionIndex(0); // Сбрасываем выбранный слайд по умолчанию
+      setCurrentOptionIndex(0);
     } else {
       setIsFinished(true);
     }
@@ -279,7 +259,6 @@ export default function App() {
       const prevStepIndex = currentStepIndex - 1;
       const prevStep = GAME_DATA[prevStepIndex];
 
-      // Находим индекс ранее выбранного ответа, чтобы вернуть фокус на него
       const previousAnswerId = answers[prevStep.key];
       const savedOptionIndex = prevStep.options.findIndex(
         (opt) => opt.id === previousAnswerId,
@@ -290,7 +269,7 @@ export default function App() {
     }
   };
 
-  // --- СБРОС ИГРЫ (Пройти снова) ---
+  // --- СБРОС ИГРЫ ---
   const handleRestart = () => {
     setCurrentStepIndex(0);
     setCurrentOptionIndex(0);
@@ -336,7 +315,7 @@ export default function App() {
             key={currentStepIndex}
             className="bg-white/85 backdrop-blur-md rounded-3xl p-6 shadow-2xl border border-pink-100 flex flex-col items-center animate-step-in relative"
           >
-            {/* Кнопка "Назад к предыдущему вопросу" (скрыта на 1-м шаге) */}
+            {/* Кнопка "Назад" */}
             {currentStepIndex > 0 && (
               <button
                 onClick={handleGoBackStep}
@@ -346,7 +325,7 @@ export default function App() {
               </button>
             )}
 
-            {/* Прогресс-бар (смещен вниз, чтобы не перекрывать кнопку Назад) */}
+            {/* Прогресс-бар */}
             <div className="w-full bg-pink-100 h-2.5 rounded-full mb-6 mt-8 overflow-hidden">
               <div
                 className="bg-gradient-to-r from-pink-500 to-purple-500 h-full rounded-full transition-all duration-300"
@@ -376,7 +355,7 @@ export default function App() {
 
             {/* Слайдер с фото */}
             <div className="relative w-full aspect-square max-w-[280px] my-2 group">
-              {/* Левая стрелка слайдера */}
+              {/* Левая стрелка */}
               <button
                 onClick={handlePrev}
                 className="absolute left-[-16px] top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-white/90 rounded-full flex items-center justify-center shadow-md active:scale-95 transition-transform border border-pink-100 hover:bg-pink-50"
@@ -395,19 +374,13 @@ export default function App() {
                 <img
                   src={currentStep.options[currentOptionIndex].imageUrl}
                   alt="Feature Option"
-                  className={`w-full h-full object-cover pointer-events-none transition-transform duration-200 ease-out ${
-                    slideDirection === "left"
-                      ? "-translate-x-full opacity-0"
-                      : slideDirection === "right"
-                        ? "translate-x-full opacity-0"
-                        : "translate-x-0 opacity-100"
-                  }`}
+                  className="w-full h-full object-cover pointer-events-none"
                 />
 
                 <div className="absolute inset-0 bg-gradient-to-t from-pink-900/10 to-transparent pointer-events-none" />
               </div>
 
-              {/* Правая стрелка слайдера */}
+              {/* Правая стрелка */}
               <button
                 onClick={handleNext}
                 className="absolute right-[-16px] top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-white/90 rounded-full flex items-center justify-center shadow-md active:scale-95 transition-transform border border-pink-100 hover:bg-pink-50"
@@ -466,7 +439,7 @@ export default function App() {
             </div>
 
             {/* Заключение */}
-            <div className="text-gray-705 font-medium px-2 mb-8 text-sm leading-relaxed">
+            <div className="text-gray-750 font-medium px-2 mb-8 text-sm leading-relaxed">
               {score === totalSteps && (
                 <>
                   <span className="block text-3xl text-pink-500 font-romantic font-bold mb-3">
@@ -496,7 +469,7 @@ export default function App() {
               )}
             </div>
 
-            {/* Стильная кнопка "Пройти ещё раз" */}
+            {/* Кнопка "Пройти ещё раз" */}
             <button
               onClick={handleRestart}
               className="w-full py-4 px-6 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-2xl font-extrabold text-sm uppercase tracking-widest shadow-lg hover:shadow-purple-300/50 hover:scale-[1.02] active:scale-98 transition-all"
