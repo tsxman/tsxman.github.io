@@ -1,4 +1,4 @@
-import React, { useState, TouchEvent, useEffect } from "react";
+import React, { useState, TouchEvent, useEffect, useMemo } from "react";
 import confetti from "canvas-confetti";
 import "./App.css";
 
@@ -128,22 +128,36 @@ const GAME_DATA: FeatureStep[] = [
 ];
 
 export default function App() {
-  // Состояния игры
+  // --- СОСТОЯНИЯ ИГРЫ ---
   const [currentStepIndex, setCurrentStepIndex] = useState<number>(0);
   const [currentOptionIndex, setCurrentOptionIndex] = useState<number>(0);
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const [isFinished, setIsFinished] = useState<boolean>(false);
 
-  // Состояния для анимации перелистывания картинок
-  const [slideDirection, setSlideDirection] = useState<"left" | "right" | "">("");
+  // --- СОСТОЯНИЯ ДЛЯ АНИМАЦИИ КАРТИНОК ---
+  const [slideDirection, setSlideDirection] = useState<"left" | "right" | "">(
+    "",
+  );
   const [isAnimating, setIsAnimating] = useState<boolean>(false);
 
-  // Для обработки свайпов
+  // --- ОБРАБОТКА СВАЙПОВ ---
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [touchEnd, setTouchEnd] = useState<number | null>(null);
 
   const currentStep = GAME_DATA[currentStepIndex];
   const totalSteps = GAME_DATA.length;
+
+  // --- СГЕНЕРИРОВАННЫЕ ЗВЕЗДОЧКИ ДЛЯ ФОНА ---
+  const sparkles = useMemo(() => {
+    return Array.from({ length: 18 }).map((_, i) => ({
+      id: i,
+      top: `${Math.random() * 100}%`,
+      left: `${Math.random() * 100}%`,
+      size: `${Math.random() * 4 + 2}px`,
+      delay: `${Math.random() * 5}s`,
+      duration: `${Math.random() * 3 + 2}s`,
+    }));
+  }, []);
 
   // --- ПОДСЧЕТ РЕЗУЛЬТАТОВ ---
   const calculateScore = () => {
@@ -163,24 +177,23 @@ export default function App() {
   // --- ЭФФЕКТ САЛЮТА ПРИ МАКСИМАЛЬНОМ БАЛЛЕ ---
   useEffect(() => {
     if (isFinished && score === totalSteps) {
-      // Запускаем несколько залпов конфетти
-      const duration = 3 * 1000;
+      const duration = 4 * 1000;
       const end = Date.now() + duration;
 
       const frame = () => {
         confetti({
-          particleCount: 5,
+          particleCount: 4,
           angle: 60,
           spread: 55,
-          origin: { x: 0 },
-          colors: ["#ec4899", "#a855f7", "#3b82f6"],
+          origin: { x: 0, y: 0.8 },
+          colors: ["#ff007f", "#a855f7", "#3b82f6", "#facc15"],
         });
         confetti({
-          particleCount: 5,
+          particleCount: 4,
           angle: 120,
           spread: 55,
-          origin: { x: 1 },
-          colors: ["#ec4899", "#a855f7", "#3b82f6"],
+          origin: { x: 1, y: 0.8 },
+          colors: ["#ff007f", "#a855f7", "#3b82f6", "#facc15"],
         });
 
         if (Date.now() < end) {
@@ -191,7 +204,7 @@ export default function App() {
     }
   }, [isFinished, score, totalSteps]);
 
-  // --- ЛОГИКА НАВИГАЦИИ ПО ВАРИАНТАМ ---
+  // --- ЛОГИКА НАВИГАЦИИ ПО ВАРИАНТАМ КАРТИНОК ---
   const handlePrev = () => {
     if (isAnimating) return;
     setSlideDirection("right");
@@ -202,7 +215,7 @@ export default function App() {
       );
       setSlideDirection("");
       setIsAnimating(false);
-    }, 200); // Совпадает со временем CSS-перехода
+    }, 200);
   };
 
   const handleNext = () => {
@@ -254,13 +267,30 @@ export default function App() {
 
     if (currentStepIndex < totalSteps - 1) {
       setCurrentStepIndex((prev) => prev + 1);
-      setCurrentOptionIndex(0);
+      setCurrentOptionIndex(0); // Сбрасываем выбранный слайд по умолчанию
     } else {
       setIsFinished(true);
     }
   };
 
-  // --- СБРОС ИГРЫ ---
+  // --- ВОЗВРАТ НА ПРЕДЫДУЩИЙ ШАГ ---
+  const handleGoBackStep = () => {
+    if (currentStepIndex > 0) {
+      const prevStepIndex = currentStepIndex - 1;
+      const prevStep = GAME_DATA[prevStepIndex];
+
+      // Находим индекс ранее выбранного ответа, чтобы вернуть фокус на него
+      const previousAnswerId = answers[prevStep.key];
+      const savedOptionIndex = prevStep.options.findIndex(
+        (opt) => opt.id === previousAnswerId,
+      );
+
+      setCurrentStepIndex(prevStepIndex);
+      setCurrentOptionIndex(savedOptionIndex !== -1 ? savedOptionIndex : 0);
+    }
+  };
+
+  // --- СБРОС ИГРЫ (Пройти снова) ---
   const handleRestart = () => {
     setCurrentStepIndex(0);
     setCurrentOptionIndex(0);
@@ -269,28 +299,55 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-tr from-pink-300 via-purple-300 to-indigo-200 flex flex-col items-center justify-between p-4 font-sans text-gray-800 select-none overflow-x-hidden">
+    <div className="min-h-screen sparkling-bg flex flex-col items-center justify-between p-4 select-none overflow-x-hidden relative">
+      {/* Сверкающий задний план со звездами */}
+      <div className="sparkles-container">
+        {sparkles.map((sparkle) => (
+          <div
+            key={sparkle.id}
+            className="sparkle"
+            style={{
+              top: sparkle.top,
+              left: sparkle.left,
+              width: sparkle.size,
+              height: sparkle.size,
+              animationDelay: sparkle.delay,
+              animationDuration: sparkle.duration,
+            }}
+          />
+        ))}
+      </div>
+
       {/* Шапка */}
-      <header className="w-full max-w-md text-center mt-4">
-        <h1 className="text-3xl font-extrabold text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.15)] tracking-wide">
+      <header className="w-full max-w-md text-center mt-4 z-10">
+        <h1 className="text-4xl font-black text-white drop-shadow-[0_4px_6px_rgba(0,0,0,0.15)] tracking-wide title-shadow">
           Девичник квиз ✨
         </h1>
-        <p className="text-sm text-pink-800 font-medium mt-1">
+        <p className="text-2xl text-pink-900 font-romantic mt-2 font-medium">
           Насколько хорошо ты знаешь жениха?
         </p>
       </header>
 
       {/* Основной контент */}
-      <main className="w-full max-w-md flex-1 flex flex-col justify-center my-6">
+      <main className="w-full max-w-md flex-1 flex flex-col justify-center my-6 z-10">
         {!isFinished ? (
-          // key={currentStepIndex} заставляет React пересоздавать компонент при переходе на новый шаг, 
-          // запуская CSS-анимацию "step-fade-in"
-          <div 
+          /* Контейнер карточки квиза */
+          <div
             key={currentStepIndex}
-            className="bg-white/80 backdrop-blur-md rounded-3xl p-6 shadow-xl border border-pink-100 flex flex-col items-center animate-step-in"
+            className="bg-white/85 backdrop-blur-md rounded-3xl p-6 shadow-2xl border border-pink-100 flex flex-col items-center animate-step-in relative"
           >
-            {/* Прогресс-бар */}
-            <div className="w-full bg-pink-100 h-2.5 rounded-full mb-6 overflow-hidden">
+            {/* Кнопка "Назад к предыдущему вопросу" (скрыта на 1-м шаге) */}
+            {currentStepIndex > 0 && (
+              <button
+                onClick={handleGoBackStep}
+                className="absolute left-6 top-6 text-xs font-bold text-pink-500 hover:text-pink-600 transition-colors flex items-center gap-1 uppercase tracking-wider"
+              >
+                <span>←</span> Назад
+              </button>
+            )}
+
+            {/* Прогресс-бар (смещен вниз, чтобы не перекрывать кнопку Назад) */}
+            <div className="w-full bg-pink-100 h-2.5 rounded-full mb-6 mt-8 overflow-hidden">
               <div
                 className="bg-gradient-to-r from-pink-500 to-purple-500 h-full rounded-full transition-all duration-300"
                 style={{
@@ -301,30 +358,34 @@ export default function App() {
 
             {/* Иконка и Название этапа */}
             <div className="text-center mb-4">
-              <span className="text-4xl" role="img" aria-label="step-emoji">
+              <span
+                className="text-5xl animate-bounce-gentle inline-block"
+                role="img"
+                aria-label="step-emoji"
+              >
                 {currentStep.emoji}
               </span>
-              <h2 className="text-2xl font-bold text-gray-800 mt-2 animate-pulse-slow">
+              <h2 className="text-2xl font-extrabold text-gray-800 mt-2 tracking-tight">
                 {currentStep.title}
               </h2>
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-gray-400 font-bold uppercase tracking-widest mt-2">
                 Вариант {currentOptionIndex + 1} из {currentStep.options.length}{" "}
-                (проведи свайп 👇)
+                (свайп 👇)
               </p>
             </div>
 
             {/* Слайдер с фото */}
             <div className="relative w-full aspect-square max-w-[280px] my-2 group">
-              {/* Левая стрелка */}
+              {/* Левая стрелка слайдера */}
               <button
                 onClick={handlePrev}
                 className="absolute left-[-16px] top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-white/90 rounded-full flex items-center justify-center shadow-md active:scale-95 transition-transform border border-pink-100 hover:bg-pink-50"
-                aria-label="Previous"
+                aria-label="Previous image"
               >
-                <span className="text-pink-500 font-bold text-lg">←</span>
+                <span className="text-pink-500 font-black text-lg">←</span>
               </button>
 
-              {/* Зона изображения со свайпом */}
+              {/* Зона изображения */}
               <div
                 className="w-full h-full rounded-2xl overflow-hidden shadow-inner border-4 border-white bg-pink-50 relative cursor-grab active:cursor-grabbing"
                 onTouchStart={onTouchStart}
@@ -338,34 +399,33 @@ export default function App() {
                     slideDirection === "left"
                       ? "-translate-x-full opacity-0"
                       : slideDirection === "right"
-                      ? "translate-x-full opacity-0"
-                      : "translate-x-0 opacity-100"
+                        ? "translate-x-full opacity-0"
+                        : "translate-x-0 opacity-100"
                   }`}
                 />
 
-                {/* Нежное свечение на фото */}
                 <div className="absolute inset-0 bg-gradient-to-t from-pink-900/10 to-transparent pointer-events-none" />
               </div>
 
-              {/* Правая стрелка */}
+              {/* Правая стрелка слайдера */}
               <button
                 onClick={handleNext}
                 className="absolute right-[-16px] top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-white/90 rounded-full flex items-center justify-center shadow-md active:scale-95 transition-transform border border-pink-100 hover:bg-pink-50"
-                aria-label="Next"
+                aria-label="Next image"
               >
-                <span className="text-pink-500 font-bold text-lg">→</span>
+                <span className="text-pink-500 font-black text-lg">→</span>
               </button>
             </div>
 
-            {/* Точки-индикаторы (Dots) */}
+            {/* Точки-индикаторы */}
             <div className="flex gap-2 my-4">
               {currentStep.options.map((_, index) => (
                 <div
                   key={index}
-                  className={`h-2.5 rounded-full transition-all duration-300 ${
+                  className={`h-2 rounded-full transition-all duration-300 ${
                     index === currentOptionIndex
                       ? "w-6 bg-pink-500"
-                      : "w-2.5 bg-pink-200"
+                      : "w-2 bg-pink-200"
                   }`}
                 />
               ))}
@@ -374,47 +434,72 @@ export default function App() {
             {/* Кнопка выбора */}
             <button
               onClick={handleSelectOption}
-              className="w-full py-4 px-6 bg-gradient-to-r from-pink-500 to-purple-500 text-white rounded-2xl font-bold text-lg shadow-lg hover:shadow-pink-300/50 hover:scale-[1.02] active:scale-98 transition-all mt-2"
+              className="w-full py-4 px-6 bg-gradient-to-r from-pink-500 to-purple-500 text-white rounded-2xl font-extrabold text-sm uppercase tracking-widest shadow-lg hover:shadow-pink-300/50 hover:scale-[1.02] active:scale-98 transition-all mt-2"
             >
               Выбрать этот вариант ✨
             </button>
           </div>
         ) : (
-          /* Экран результатов с анимацией появления */
-          <div className="bg-white/80 backdrop-blur-md rounded-3xl p-8 shadow-xl border border-pink-100 flex flex-col items-center text-center animate-result-in">
-            <span className="text-6xl mb-4 animate-bounce-gentle">🎉</span>
-            <h2 className="text-3xl font-extrabold text-pink-600 mb-2">
+          /* Экран результатов */
+          <div className="bg-white/85 backdrop-blur-md rounded-3xl p-8 shadow-2xl border border-pink-100 flex flex-col items-center text-center animate-result-in">
+            <span className="text-6xl mb-4 animate-bounce-gentle inline-block">
+              🎉
+            </span>
+            <h2 className="text-3xl font-black text-pink-600 mb-2 tracking-tight">
               Игра окончена!
             </h2>
-            <p className="text-gray-600 mb-6">
+            <p className="text-gray-500 font-medium mb-6 text-sm">
               Давай посмотрим, насколько хорошо ты справилась!
             </p>
 
             {/* Результат */}
             <div className="bg-pink-50 rounded-2xl p-6 w-full mb-6 border border-pink-100 animate-pulse-light">
-              <p className="text-sm text-pink-800 font-semibold uppercase tracking-wider">
+              <p className="text-xs text-pink-800 font-bold uppercase tracking-widest">
                 Твой результат
               </p>
-              <div className="text-5xl font-black text-purple-600 my-2">
+              <div className="text-6xl font-black text-purple-600 my-2">
                 {score} / {totalSteps}
               </div>
-              <p className="text-xs text-gray-500 mt-1">правильных ответов</p>
+              <p className="text-xs text-gray-400 font-bold uppercase tracking-wider mt-1">
+                правильных ответов
+              </p>
             </div>
 
-            <div className="text-gray-700 font-medium px-2 mb-8 text-sm leading-relaxed">
-              {score === totalSteps &&
-                "👑 Абсолютный триумф! Ты лучшая подружка невесты! Знаешь зятя как свои пять пальцев. Срочно требуй у невесты звание почетной гостьи!"}
-              {score >= 2 &&
-                score < totalSteps &&
-                "🥂 Отличный результат! С женихом вы точно знакомы не понаслышке. На свадьбе будет о чём поболтать!"}
-              {score < 2 &&
-                "🕵️‍♀️ Ой-ой! Кажется, вы слишком редко ходите на двойные свидания! Отличный повод получше рассмотреть жениха на грядущей свадьбе!"}
+            {/* Заключение */}
+            <div className="text-gray-705 font-medium px-2 mb-8 text-sm leading-relaxed">
+              {score === totalSteps && (
+                <>
+                  <span className="block text-3xl text-pink-500 font-romantic font-bold mb-3">
+                    Абсолютный триумф!
+                  </span>
+                  👑 Ты лучшая подружка невесты! Знаешь зятя как свои пять
+                  пальцев. Срочно требуй у невесты звание почетной гостьи!
+                </>
+              )}
+              {score >= 2 && score < totalSteps && (
+                <>
+                  <span className="block text-3xl text-pink-500 font-romantic font-bold mb-3">
+                    Отличный результат!
+                  </span>
+                  🥂 С женихом вы точно знакомы не понаслышке. На свадьбе будет
+                  о чём поболтать!
+                </>
+              )}
+              {score < 2 && (
+                <>
+                  <span className="block text-3xl text-pink-500 font-romantic font-bold mb-3">
+                    Ой-ой!
+                  </span>
+                  🕵️‍♀️ Кажется, вы слишком редко ходите на двойные свидания!
+                  Отличный повод получше рассмотреть жениха на грядущей свадьбе!
+                </>
+              )}
             </div>
 
-            {/* Кнопка "Начать заново" */}
+            {/* Стильная кнопка "Пройти ещё раз" */}
             <button
               onClick={handleRestart}
-              className="w-full py-4 px-6 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-2xl font-bold text-lg shadow-lg hover:scale-[1.02] active:scale-98 transition-all"
+              className="w-full py-4 px-6 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-2xl font-extrabold text-sm uppercase tracking-widest shadow-lg hover:shadow-purple-300/50 hover:scale-[1.02] active:scale-98 transition-all"
             >
               Пройти ещё раз 🔄
             </button>
