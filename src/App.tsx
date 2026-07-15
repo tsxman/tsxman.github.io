@@ -141,7 +141,7 @@ export default function App() {
   const currentStep = GAME_DATA[currentStepIndex];
   const totalSteps = GAME_DATA.length;
 
-  // --- СГЕНЕРИРОВАННЫЕ ЗВЕЗДОЧКИ ДЛЯ ФОНА ---
+  // --- СГЕНЕРИРОВАННЫЕ ЗВЕЗДОЧКИ ДЛЯ РОЗОВОГО ФОНА ---
   const sparkles = useMemo(() => {
     return Array.from({ length: 18 }).map((_, i) => ({
       id: i,
@@ -150,6 +150,17 @@ export default function App() {
       size: `${Math.random() * 4 + 2}px`,
       delay: `${Math.random() * 5}s`,
       duration: `${Math.random() * 3 + 2}s`,
+    }));
+  }, []);
+
+  // --- ЧАСТИЦЫ ДЛЯ ЗЕЛЕНОГО ФОНА В КОНЦЕ ---
+  const resultParticles = useMemo(() => {
+    return Array.from({ length: 25 }).map((_, i) => ({
+      id: i,
+      left: `${Math.random() * 100}%`,
+      size: `${Math.random() * 7 + 4}px`,
+      delay: `${Math.random() * 6}s`,
+      duration: `${Math.random() * 5 + 4}s`, // Медленный подъем по всему экрану
     }));
   }, []);
 
@@ -180,14 +191,14 @@ export default function App() {
           angle: 60,
           spread: 55,
           origin: { x: 0, y: 0.8 },
-          colors: ["#ff007f", "#a855f7", "#3b82f6", "#facc15"],
+          colors: ["#10b981", "#34d399", "#6ee7b7", "#a7f3d0"],
         });
         confetti({
           particleCount: 4,
           angle: 120,
           spread: 55,
           origin: { x: 1, y: 0.8 },
-          colors: ["#ff007f", "#a855f7", "#3b82f6", "#facc15"],
+          colors: ["#10b981", "#34d399", "#6ee7b7", "#a7f3d0"],
         });
 
         if (Date.now() < end) {
@@ -198,7 +209,7 @@ export default function App() {
     }
   }, [isFinished, score, totalSteps]);
 
-  // --- МГНОВЕННАЯ НАВИГАЦИЯ ПО КАРТИНКАМ ---
+  // --- НАВИГАЦИЯ ПО КАРТИНКАМ ---
   const handlePrev = () => {
     setCurrentOptionIndex((prev) =>
       prev === 0 ? currentStep.options.length - 1 : prev - 1,
@@ -278,34 +289,62 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen sparkling-bg flex flex-col items-center justify-between p-4 select-none overflow-x-hidden relative">
-      {/* Сверкающий задний план со звездами */}
-      <div className="sparkles-container">
-        {sparkles.map((sparkle) => (
-          <div
-            key={sparkle.id}
-            className="sparkle"
-            style={{
-              top: sparkle.top,
-              left: sparkle.left,
-              width: sparkle.size,
-              height: sparkle.size,
-              animationDelay: sparkle.delay,
-              animationDuration: sparkle.duration,
-            }}
-          />
-        ))}
-      </div>
+    /* ВЕРХНИЙ КОНТЕЙНЕР: Меняет тему фона (розовая/зеленая) в зависимости от окончания */
+    <div
+      className={`min-h-screen flex flex-col items-center justify-between p-4 select-none overflow-x-hidden relative transition-all duration-1000 ${
+        isFinished ? "emerald-glow-bg" : "sparkling-bg"
+      }`}
+    >
+      {/* ФОНОВЫЕ ЭФФЕКТЫ ДЛЯ РОЗОВОГО ЭКРАНА */}
+      {!isFinished && (
+        <div className="sparkles-container">
+          {sparkles.map((sparkle) => (
+            <div
+              key={sparkle.id}
+              className="sparkle"
+              style={{
+                top: sparkle.top,
+                left: sparkle.left,
+                width: sparkle.size,
+                height: sparkle.size,
+                animationDelay: sparkle.delay,
+                animationDuration: sparkle.duration,
+              }}
+            />
+          ))}
+        </div>
+      )}
 
-      {/* Шапка */}
-      <header className="w-full max-w-md text-center mt-4 z-10">
-        <h1 className="text-4xl font-black text-white drop-shadow-[0_4px_6px_rgba(0,0,0,0.15)] tracking-wide title-shadow">
-          Девичник квиз ✨
-        </h1>
-        <p className="text-2xl text-pink-900 font-romantic mt-2 font-medium">
-          Насколько хорошо ты знаешь жениха?
-        </p>
-      </header>
+      {/* ФОНОВЫЕ ЭФФЕКТЫ ДЛЯ ЗЕЛЕНОГО ЭКРАНА (на весь экран) */}
+      {isFinished && (
+        <div className="emerald-particles-container">
+          {resultParticles.map((part) => (
+            <div
+              key={part.id}
+              className="emerald-bubble"
+              style={{
+                left: part.left,
+                width: part.size,
+                height: part.size,
+                animationDelay: part.delay,
+                animationDuration: part.duration,
+              }}
+            />
+          ))}
+        </div>
+      )}
+
+      {/* Шапка (Скрывается на финальном экране) */}
+      {!isFinished && (
+        <header className="w-full max-w-md text-center mt-4 z-10">
+          <h1 className="text-4xl font-black text-white drop-shadow-[0_4px_6px_rgba(0,0,0,0.15)] tracking-wide title-shadow">
+            Девичник квиз ✨
+          </h1>
+          <p className="text-2xl text-pink-900 font-romantic mt-2 font-medium">
+            Насколько хорошо ты знаешь жениха?
+          </p>
+        </header>
+      )}
 
       {/* Основной контент */}
       <main className="w-full max-w-md flex-1 flex flex-col justify-center my-6 z-10">
@@ -376,7 +415,6 @@ export default function App() {
                   alt="Feature Option"
                   className="w-full h-full object-cover pointer-events-none"
                 />
-
                 <div className="absolute inset-0 bg-gradient-to-t from-pink-900/10 to-transparent pointer-events-none" />
               </div>
 
@@ -395,11 +433,12 @@ export default function App() {
               {currentStep.options.map((_, index) => (
                 <div
                   key={index}
-                  className={`h-2 rounded-full transition-all duration-300 ${
-                    index === currentOptionIndex
-                      ? "w-6 bg-pink-500"
-                      : "w-2 bg-pink-200"
-                  }`}
+                  className="h-2 rounded-full transition-all duration-300"
+                  style={{
+                    width: index === currentOptionIndex ? "24px" : "8px",
+                    backgroundColor:
+                      index === currentOptionIndex ? "#ec4899" : "#fbcfe8",
+                  }}
                 />
               ))}
             </div>
@@ -413,36 +452,37 @@ export default function App() {
             </button>
           </div>
         ) : (
-          /* Экран результатов */
-          <div className="bg-white/85 backdrop-blur-md rounded-3xl p-8 shadow-2xl border border-pink-100 flex flex-col items-center text-center animate-result-in">
+          /* КАРТОЧКА РЕЗУЛЬТАТОВ (Белая, контрастная на зеленом фоне) */
+          <div className="bg-white/90 backdrop-blur-md rounded-3xl p-8 shadow-2xl border border-emerald-100 flex flex-col items-center text-center animate-result-in relative">
             <span className="text-6xl mb-4 animate-bounce-gentle inline-block">
               🎉
             </span>
-            <h2 className="text-3xl font-black text-pink-600 mb-2 tracking-tight">
+            <h2 className="text-3xl font-black text-emerald-800 mb-2 tracking-tight">
               Игра окончена!
             </h2>
-            <p className="text-gray-500 font-medium mb-6 text-sm">
+            <p className="text-emerald-600/80 font-bold mb-6 text-xs uppercase tracking-widest">
               Давай посмотрим, насколько хорошо ты справилась!
             </p>
 
             {/* Результат */}
-            <div className="bg-pink-50 rounded-2xl p-6 w-full mb-6 border border-pink-100 animate-pulse-light">
-              <p className="text-xs text-pink-800 font-bold uppercase tracking-widest">
+            <div className="bg-gradient-to-br from-emerald-500/10 to-teal-500/10 rounded-2xl p-6 w-full mb-6 border border-emerald-100 shadow-inner">
+              <p className="text-xs text-emerald-800 font-extrabold uppercase tracking-widest">
                 Твой результат
               </p>
-              <div className="text-6xl font-black text-purple-600 my-2">
-                {score} / {totalSteps}
+              <div className="text-7xl font-black text-emerald-600 my-2">
+                {score} <span className="text-emerald-400 text-4xl">/</span>{" "}
+                {totalSteps}
               </div>
-              <p className="text-xs text-gray-400 font-bold uppercase tracking-wider mt-1">
+              <p className="text-xs text-gray-400 font-bold uppercase tracking-wider">
                 правильных ответов
               </p>
             </div>
 
-            {/* Заключение */}
-            <div className="text-gray-750 font-medium px-2 mb-8 text-sm leading-relaxed">
+            {/* Текст заключения */}
+            <div className="text-gray-700 font-medium px-2 mb-8 text-sm leading-relaxed">
               {score === totalSteps && (
                 <>
-                  <span className="block text-3xl text-pink-500 font-romantic font-bold mb-3">
+                  <span className="block text-3xl text-emerald-600 font-romantic font-bold mb-3">
                     Абсолютный триумф!
                   </span>
                   👑 Ты лучшая подружка невесты! Знаешь зятя как свои пять
@@ -451,7 +491,7 @@ export default function App() {
               )}
               {score >= 2 && score < totalSteps && (
                 <>
-                  <span className="block text-3xl text-pink-500 font-romantic font-bold mb-3">
+                  <span className="block text-3xl text-emerald-600 font-romantic font-bold mb-3">
                     Отличный результат!
                   </span>
                   🥂 С женихом вы точно знакомы не понаслышке. На свадьбе будет
@@ -460,7 +500,7 @@ export default function App() {
               )}
               {score < 2 && (
                 <>
-                  <span className="block text-3xl text-pink-500 font-romantic font-bold mb-3">
+                  <span className="block text-3xl text-emerald-600 font-romantic font-bold mb-3">
                     Ой-ой!
                   </span>
                   🕵️‍♀️ Кажется, вы слишком редко ходите на двойные свидания!
@@ -472,7 +512,7 @@ export default function App() {
             {/* Кнопка "Пройти ещё раз" */}
             <button
               onClick={handleRestart}
-              className="w-full py-4 px-6 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-2xl font-extrabold text-sm uppercase tracking-widest shadow-lg hover:shadow-purple-300/50 hover:scale-[1.02] active:scale-98 transition-all"
+              className="w-full py-4 px-6 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-2xl font-extrabold text-sm uppercase tracking-widest shadow-lg hover:shadow-emerald-400/50 hover:scale-[1.02] active:scale-98 transition-all"
             >
               Пройти ещё раз 🔄
             </button>
