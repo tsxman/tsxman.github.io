@@ -272,7 +272,7 @@ const ImageSlider: React.FC<ImageSliderProps> = ({
         <span className="text-pink-500 font-black text-lg">←</span>
       </button>
 
-      {/* Контейнер картинки оригинального размера по центру */}
+      {/* Контейнер картинки на 100% ширины с сохранением пропорций */}
       <div
         className="w-full h-full rounded-2xl overflow-hidden shadow-inner border-4 border-white bg-white relative cursor-grab active:cursor-grabbing flex items-center justify-center"
         onTouchStart={onTouchStart}
@@ -282,7 +282,7 @@ const ImageSlider: React.FC<ImageSliderProps> = ({
         <img
           src={imageUrl}
           alt="Feature Option"
-          className="max-w-full max-h-full object-contain pointer-events-none"
+          className="w-full max-h-full object-contain pointer-events-none"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-pink-900/10 to-transparent pointer-events-none" />
       </div>
@@ -411,7 +411,7 @@ const ResultCard: React.FC<ResultCardProps> = ({
       </p>
 
       {/* Оценка */}
-      <div className="bg-gradient-to-br from-emerald-500/10 to-teal-500/10 rounded-2xl p-6 w-full mb-6 border border-emerald-100 shadow-inner">
+      <div className="bg-gradient-to-br from-emerald-500/10 to-teal-500/10 rounded-2xl p-6 w-full mb-8 border border-emerald-100 shadow-inner">
         <p className="text-xs text-emerald-800 font-extrabold uppercase tracking-widest">
           Твой результат
         </p>
@@ -422,37 +422,6 @@ const ResultCard: React.FC<ResultCardProps> = ({
         <p className="text-xs text-gray-400 font-bold uppercase tracking-wider">
           правильных ответов
         </p>
-      </div>
-
-      {/* Текст вывода результатов */}
-      <div className="text-gray-700 font-medium px-2 mb-8 text-sm leading-relaxed">
-        {score === totalSteps && (
-          <>
-            <span className="block text-3xl text-emerald-600 font-romantic font-bold mb-3">
-              Абсолютный триумф!
-            </span>
-            👑 Ты лучшая подружка невесты! Знаешь зятя как свои пять пальцев.
-            Срочно требуй у невесты звание почетной гостьи!
-          </>
-        )}
-        {score >= 4 && score < totalSteps && (
-          <>
-            <span className="block text-3xl text-emerald-600 font-romantic font-bold mb-3">
-              Отличный результат!
-            </span>
-            🥂 С женихом вы точно знакомы не понаслышке. На свадьбе будет о чём
-            поболтать!
-          </>
-        )}
-        {score < 4 && (
-          <>
-            <span className="block text-3xl text-emerald-600 font-romantic font-bold mb-3">
-              Ой-ой!
-            </span>
-            🕵️‍♀️ Кажется, вы слишком редко ходите на двойные свидания! Отличный
-            повод получше рассмотреть жениха на грядущей свадьбе!
-          </>
-        )}
       </div>
 
       <button
@@ -590,7 +559,7 @@ export default function App() {
             Девичник квиз ✨
           </h1>
           <p className="text-2xl text-pink-900 font-romantic mt-2 font-medium">
-            Насколько хорошо ты знаешь жениха?
+            Кто из них Гриша?
           </p>
         </header>
       )}
