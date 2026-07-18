@@ -313,7 +313,7 @@ export const ImageGame = () => {
   };
 
   return (
-    <GameBackground mode={isFinished ? "emerald" : "sparkling"}>
+    <GameBackground mode={isFinished ? "emerald" : "sunset"}>
       {!isFinished && (
         <header className="w-full max-w-md text-center mt-4 z-10">
           <h1 className="text-4xl font-black text-white drop-shadow-[0_4px_6px_rgba(0,0,0,0.15)] tracking-wide title-shadow">

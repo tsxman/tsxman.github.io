@@ -1,7 +1,15 @@
 import React, { useMemo } from "react";
 
 interface GameBackgroundProps {
-  mode: "sparkling" | "emerald" | "cosmic" | "sunset" | "mint" | "candy" | "lemon" | "lavender";
+  mode:
+    | "sparkling"
+    | "emerald"
+    | "cosmic"
+    | "sunset"
+    | "mint"
+    | "candy"
+    | "lemon"
+    | "lavender";
   children: React.ReactNode;
 }
 
@@ -69,19 +77,34 @@ const EmeraldParticlesBackground: React.FC = () => {
 
 const CosmicBackground: React.FC = () => {
   const stars = useMemo(() => {
-    return Array.from({ length: 35 }).map((_, i) => ({
-      id: i,
-      top: `${Math.random() * 100}%`,
-      left: `${Math.random() * 100}%`,
-      size: `${Math.random() * 3 + 1}px`,
-      delay: `${Math.random() * 5}s`,
-      duration: `${Math.random() * 4 + 2}s`,
-      opacity: Math.random() * 0.7 + 0.3,
-    }));
+    // Палитра космических цветов (белый, голубой, фиолетовый/розовый, золотистый)
+    const colors = [
+      "rgba(255, 255, 255, 1)", // Белый
+      "rgba(173, 216, 230, 1)", // Светло-голубой
+      "rgba(255, 182, 193, 1)", // Нежно-розовый
+      "rgba(255, 223, 186, 1)", // Золотистый/кремовый
+      "rgba(224, 176, 255, 1)", // Лавандовый
+    ];
+
+    // Увеличили количество до 150
+    return Array.from({ length: 150 }).map((_, i) => {
+      const color = colors[Math.floor(Math.random() * colors.length)];
+
+      return {
+        id: i,
+        top: `${Math.random() * 100}%`,
+        left: `${Math.random() * 100}%`,
+        size: `${Math.random() * 3 + 1}px`,
+        delay: `${Math.random() * 5}s`,
+        duration: `${Math.random() * 4 + 2}s`,
+        opacity: Math.random() * 0.7 + 0.3,
+        color: color,
+      };
+    });
   }, []);
 
   return (
-    <div 
+    <div
       style={{
         position: "absolute",
         inset: 0,
@@ -92,8 +115,8 @@ const CosmicBackground: React.FC = () => {
     >
       <style>{`
         @keyframes cosmicPulse {
-          0%, 100% { opacity: 0.3; transform: scale(0.8); }
-          50% { opacity: 1; transform: scale(1.2); }
+          0%, 100% { opacity: 0.2; transform: scale(0.8); }
+          50% { opacity: 1; transform: scale(1.3); }
         }
       `}</style>
       {stars.map((star) => (
@@ -105,9 +128,10 @@ const CosmicBackground: React.FC = () => {
             left: star.left,
             width: star.size,
             height: star.size,
-            backgroundColor: "#fff",
+            backgroundColor: star.color,
             borderRadius: "50%",
-            boxShadow: "0 0 8px rgba(255, 255, 255, 0.8)",
+            // Свечение теперь соответствует цвету самой звезды
+            boxShadow: `0 0 8px ${star.color.replace("1)", "0.8)")}`,
             opacity: star.opacity,
             animation: `cosmicPulse ${star.duration} ease-in-out infinite`,
             animationDelay: star.delay,
@@ -120,7 +144,7 @@ const CosmicBackground: React.FC = () => {
 
 const SunsetBackground: React.FC = () => {
   const hearts = useMemo(() => {
-    return Array.from({ length: 15 }).map((_, i) => ({
+    return Array.from({ length: 150 }).map((_, i) => ({
       id: i,
       left: `${Math.random() * 100}%`,
       size: `${Math.random() * 10 + 12}px`,
@@ -130,7 +154,15 @@ const SunsetBackground: React.FC = () => {
   }, []);
 
   return (
-    <div style={{ position: "absolute", inset: 0, overflow: "hidden", pointerEvents: "none", zIndex: 1 }}>
+    <div
+      style={{
+        position: "absolute",
+        inset: 0,
+        overflow: "hidden",
+        pointerEvents: "none",
+        zIndex: 1,
+      }}
+    >
       <style>{`
         @keyframes floatUpHeart {
           0% { transform: translateY(105vh) scale(0.8) rotate(0deg); opacity: 0; }
@@ -171,7 +203,15 @@ const MintBackground: React.FC = () => {
   }, []);
 
   return (
-    <div style={{ position: "absolute", inset: 0, overflow: "hidden", pointerEvents: "none", zIndex: 1 }}>
+    <div
+      style={{
+        position: "absolute",
+        inset: 0,
+        overflow: "hidden",
+        pointerEvents: "none",
+        zIndex: 1,
+      }}
+    >
       <style>{`
         @keyframes mintFloat {
           0% { transform: translateY(105vh) translateX(0); opacity: 0; }
@@ -219,7 +259,15 @@ const CandyBackground: React.FC = () => {
   }, []);
 
   return (
-    <div style={{ position: "absolute", inset: 0, overflow: "hidden", pointerEvents: "none", zIndex: 1 }}>
+    <div
+      style={{
+        position: "absolute",
+        inset: 0,
+        overflow: "hidden",
+        pointerEvents: "none",
+        zIndex: 1,
+      }}
+    >
       <style>{`
         @keyframes candySpin {
           0% { transform: rotate(0deg) scale(0.8); opacity: 0.3; }
@@ -259,7 +307,15 @@ const LemonBackground: React.FC = () => {
   }, []);
 
   return (
-    <div style={{ position: "absolute", inset: 0, overflow: "hidden", pointerEvents: "none", zIndex: 1 }}>
+    <div
+      style={{
+        position: "absolute",
+        inset: 0,
+        overflow: "hidden",
+        pointerEvents: "none",
+        zIndex: 1,
+      }}
+    >
       <style>{`
         @keyframes petalFall {
           0% { transform: translateY(-10vh) rotate(0deg); opacity: 0; }
@@ -303,7 +359,15 @@ const LavenderBackground: React.FC = () => {
   }, []);
 
   return (
-    <div style={{ position: "absolute", inset: 0, overflow: "hidden", pointerEvents: "none", zIndex: 1 }}>
+    <div
+      style={{
+        position: "absolute",
+        inset: 0,
+        overflow: "hidden",
+        pointerEvents: "none",
+        zIndex: 1,
+      }}
+    >
       <style>{`
         @keyframes lavenderGlow {
           0%, 100% { transform: scale(1) translate(0, 0); opacity: 0.2; }
@@ -338,17 +402,30 @@ export const GameBackground: React.FC<GameBackgroundProps> = ({
   const style = useMemo(() => {
     switch (mode) {
       case "cosmic":
-        return { background: "linear-gradient(135deg, #0f0c20 0%, #15103c 50%, #2b1055 100%)" };
+        return {
+          background:
+            "linear-gradient(135deg, #0f0c20 0%, #15103c 50%, #2b1055 100%)",
+        };
       case "sunset":
-        return { background: "linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)" };
+        return {
+          background: "linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)",
+        };
       case "mint":
-        return { background: "linear-gradient(135deg, #96e6a1 0%, #d4fc79 100%)" };
+        return {
+          background: "linear-gradient(135deg, #96e6a1 0%, #d4fc79 100%)",
+        };
       case "candy":
-        return { background: "linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 100%)" };
+        return {
+          background: "linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 100%)",
+        };
       case "lemon":
-        return { background: "linear-gradient(135deg, #f6d365 0%, #fda085 100%)" };
+        return {
+          background: "linear-gradient(135deg, #f6d365 0%, #fda085 100%)",
+        };
       case "lavender":
-        return { background: "linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%)" };
+        return {
+          background: "linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%)",
+        };
       case "emerald":
       case "sparkling":
       default:
