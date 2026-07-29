@@ -268,30 +268,32 @@ export const TwoMonthsDate: React.FC = () => {
                 </div>
               </div>
 
-              <div className="flex items-center gap-2 pt-2 border-t border-purple-200/50">
-                <span className="text-[11px] text-purple-700/70 font-medium mr-1">
-                  Маршрут:
+              <div className="flex flex-col items-center gap-2 pt-3 border-t border-purple-200/50 text-center">
+                <span className="text-[11px] text-purple-700/70 font-semibold uppercase tracking-wider">
+                  Как добраться?
                 </span>
 
-                <a
-                  href="https://yandex.ru/maps/213/moscow/?ll=37.583856%2C55.779808&mode=routes&rtext=55.810395%2C37.557906~55.748709%2C37.533333&rtt=mt&ruri=ymapsbm1%3A%2F%2Fgeo%3Fdata%3DCgg1Njc2MTgyMxI70KDQvtGB0YHQuNGPLCDQnNC-0YHQutCy0LAsINGD0LvQuNGG0LAg0JLRg9GH0LXRgtC40YfQsCwgMTMiCg1MOxZCFdg9X0I%2C~&z=12.88"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-white hover:bg-purple-50 border border-purple-200 text-purple-700 text-xs font-semibold shadow-sm transition-all duration-200 active:scale-95"
-                >
-                  <Home className="w-3.5 h-3.5 text-purple-500" />
-                  <span>Из дома</span>
-                </a>
+                <div className="flex flex-col sm:flex-row gap-2 w-full pt-1">
+                  <a
+                    href="https://yandex.ru/maps/213/moscow/?ll=37.583856%2C55.779808&mode=routes&rtext=55.810395%2C37.557906~55.748709%2C37.533333&rtt=mt&ruri=ymapsbm1%3A%2F%2Fgeo%3Fdata%3DCgg1Njc2MTgyMxI70KDQvtGB0YHQuNGPLCDQnNC-0YHQutCy0LAsINGD0LvQuNGG0LAg0JLRg9GH0LXRgtC40YfQsCwgMTMiCg1MOxZCFdg9X0I%2C~&z=12.88"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-white hover:bg-purple-100/50 border border-purple-200/80 text-purple-800 text-xs font-semibold shadow-sm transition-all duration-200 active:scale-95"
+                  >
+                    <Home className="w-4 h-4 text-purple-500" />
+                    <span>Из дома</span>
+                  </a>
 
-                <a
-                  href="https://yandex.ru/maps/213/moscow/?ll=37.574700%2C55.778357&mode=routes&rtext=55.801203%2C37.551748~55.748709%2C37.533333&rtt=mt&ruri=ymapsbm1%3A%2F%2Forg%3Foid%3D1103721537~&z=13.03"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-white hover:bg-purple-50 border border-purple-200 text-purple-700 text-xs font-semibold shadow-sm transition-all duration-200 active:scale-95"
-                >
-                  <Briefcase className="w-3.5 h-3.5 text-purple-500" />
-                  <span>С работы</span>
-                </a>
+                  <a
+                    href="https://yandex.ru/maps/213/moscow/?ll=37.574700%2C55.778357&mode=routes&rtext=55.801203%2C37.551748~55.748709%2C37.533333&rtt=mt&ruri=ymapsbm1%3A%2F%2Forg%3Foid%3D1103721537~&z=13.03"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-white hover:bg-purple-100/50 border border-purple-200/80 text-purple-800 text-xs font-semibold shadow-sm transition-all duration-200 active:scale-95"
+                  >
+                    <Briefcase className="w-4 h-4 text-purple-500" />
+                    <span>С работы</span>
+                  </a>
+                </div>
               </div>
             </div>
           </div>
